@@ -1,6 +1,7 @@
 package com.example.github;
 
 import com.example.github.client.GithubClient;
+import com.example.github.exception.UserNotFoundException;
 import com.example.github.model.Branch;
 import com.example.github.model.GithubOwner;
 import com.example.github.model.GithubOwnerDto;
@@ -17,7 +18,7 @@ public class GithubService {
     private final GithubClient githubClient;
     private final ModelMapper modelMapper;
 
-    public List<GithubOwnerDto> get(String nameOwner){
+    public List<GithubOwnerDto> get(String nameOwner) throws UserNotFoundException {
         List<GithubOwner> githubOwners = githubClient.get(nameOwner)
                 .stream()
                 .filter(githubOwner -> !githubOwner.getFork())
@@ -30,13 +31,6 @@ public class GithubService {
         return githubOwners.stream()
                 .map(owners->modelMapper.map(owners,GithubOwnerDto.class))
                 .toList();
-    }
-    public List<String> getWithoutFork(String nameOwner) {
-        return githubClient.get(nameOwner)
-                .stream()
-                .filter(githubOwner -> !githubOwner.getFork())
-                .map(GithubOwner::getName)
-                .collect(Collectors.toList());
     }
     private void addBranches(GithubOwner githubOwner,String nameOwner){
         List<Branch> branches = githubClient.getBranches(nameOwner, githubOwner.getName());
